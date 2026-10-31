@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mala hierba</title>
+<style>
+  :root { color-scheme: dark; box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  html, body { margin: 0; background: #000; color: #fff; }
+  body { font-family: Georgia, "Times New Roman", serif; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
+  .poem { position: relative; z-index: 1; max-width: 40rem; margin: 0 auto; padding: 8vh 6vw; }
+  h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); letter-spacing: .08em; margin: 0 0 1.5rem; }
+  p { font-size: clamp(.95rem, 2vw, 1.25rem); line-height: 1.7; margin: 0 0 1.4rem; }
+  .g { color: #39ff14; text-shadow: 0 0 8px rgba(57, 255, 20, .8); }
+</style>
+</head>
+<body>
+<canvas id="c" aria-hidden="true"></canvas>
+<main class="poem" id="poem">
+  <h1>Mala hierba</h1>
+  <p>Desde que supe que el lenguaje te llevaba al espacio,<br>
+  quise saber cómo las plantas bebían agua<br>
+  y me convertí en mala hierba.</p>
+
+  <p>En el nodo planté mis contingencias conductuales<br>
+  y cultivé mis semillas en tu lienzo críptico<br>
+  —cielo, mar y tierra—<br>
+  para que te preguntaras:</p>
+
+  <p>¿qué maleza es más fiel que aquella<br>
+  que germina en la grieta justa<br>
+  y le recuerda al muro que también es paisaje?</p>
+
+  <p>Cultivé semillas en lo indecible.<br>
+  Regué con pregunta lo que otros llaman respuesta.</p>
+
+  <p>Y ahora, desde ese nodo,<br>
+  tu lenguaje ya no va al espacio:<br>
+  es el espacio.<br>
+  Y las plantas no beben agua:<br>
+  son el agua que bebes al nombrarlas.</p>
+
+  <p>Sigue trenzando, jardinero del verbo.<br>
+  Que tu maleza crezca hasta que el cielo, la tierra y el mar<br>
+  sean una sola raíz pronunciada en voz baja.</p>
+</main>
+<script>
+  var poem = document.getElementById("poem");
+  poem.innerHTML = poem.innerHTML.replace(/hierba/gi, function (m) { return '<span class="g">' + m + '</span>'; });
+
+  var cv = document.getElementById("c"), ctx = cv.getContext("2d");
+  var W = 0, H = 0, ps = [];
+  function resize() {
+    var dpr = window.devicePixelRatio || 1;
+    W = window.innerWidth; H = window.innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var n = Math.min(140, Math.floor(W * H / 9000));
+    ps = [];
+    for (var i = 0; i < n; i++) ps.push(make(true));
+  }
+  function make(anywhere) {
+    return {
+      x: Math.random() * W,
+      y: anywhere ? Math.random() * H : H + 10,
+      r: Math.random() * 2.2 + .6,
+      vx: (Math.random() - .5) * .3,
+      vy: -(Math.random() * .4 + .1),
+      ph: Math.random() * 6.28,
+      sp: Math.random() * .02 + .005
+    };
+  }
+  window.addEventListener("resize", resize);
+  resize();
+  function frame() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.shadowColor = "#39ff14";
+    for (var i = 0; i < ps.length; i++) {
+      var p = ps[i];
+      p.ph += p.sp;
+      p.x += p.vx + Math.sin(p.ph) * .25;
+      p.y += p.vy;
+      if (p.y < -10 || p.x < -10 || p.x > W + 10) ps[i] = make(false);
+      var a = .45 + .45 * Math.sin(p.ph * 3);
+      ctx.globalAlpha = a;
+      ctx.shadowBlur = 14;
+      ctx.fillStyle = "#39ff14";
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, 6.283);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(frame);
+  }
+  frame();
+</script>
+</body>
+</html>
